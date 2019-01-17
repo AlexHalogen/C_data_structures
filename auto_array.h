@@ -1,9 +1,9 @@
 #include <stdlib.h>
-
+#include "utils/callbacks.h"
 /*
  * Simplistic array wrapping that allows automatic growing of the array
  * Array accepts any type of data, and data is guaranteed to be contigious in 
- * memory, 
+ * memory, 1
  * e.g &(array_get(array, 0)) == &(array_get(array,1)) + sizeof(array_element)
  *
  * User of the array need to supply a destructor, a default constructor and 
@@ -22,11 +22,11 @@
 typedef struct auto_array auto_array;
 
 
-typedef void (*copy_constructor2_type)(void *dest, void *elem);
+/*typedef void (*copy_constructor2_type)(void *dest, void *elem);
 
 typedef void (*destructor_type)(void *elem);
 
-typedef void (*default_constructor2_type)(void *dest);
+typedef void (*default_constructor2_type)(void *dest);*/
 
 
 // initial capacity for array
@@ -55,3 +55,6 @@ void array_clear(auto_array *array);
 size_t array_size(auto_array *array);
 size_t array_capacity(auto_array *array);
 int array_empty(auto_array *array);
+
+
+#define array_get(array, position, type) ( ((type*)(array_front(array)))[position] )

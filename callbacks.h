@@ -1,3 +1,18 @@
+typedef void *(*copy_constructor_type)(void *elem);
+typedef void (*destructor_type)(void *elem);
+typedef void *(*default_constructor_type)(void);
+
+
+typedef void (*copy_constructor2_type)(void *dest, void *elem);
+typedef void (*default_constructor2_type)(void *dest);
+
+typedef int (*compare_type)(void *A, void *B);
+
+void nop_destructor(void *ptr);
+
+void nop_default_constructor(void *dest);
+
+
 void pointer_destructor(void *ptr) ;
 void pointer_copy_constructor2(void *dest, void *ptr ) ;
 void pointer_default_constructor2(void *dest) ;

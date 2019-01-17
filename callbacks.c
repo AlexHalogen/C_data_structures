@@ -3,6 +3,13 @@
 #include <stdint.h>
 #include "callbacks.h"
 
+void nop_destructor(void *ptr) {
+	(void)ptr;
+}
+
+void nop_default_constructor(void *dest) {
+	(void)dest;
+}
 
 void pointer_destructor(void *ptr) {
 	(void)ptr;
