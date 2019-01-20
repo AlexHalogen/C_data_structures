@@ -18,7 +18,7 @@ void pointer_destructor(void *ptr) {
 }
 
 void* pointer_copy_constructor(void *ptr ) {
-    return ptr;
+	return ptr;
 }
 
 void pointer_copy_constructor2(void *dest, void *ptr ) {

@@ -8,7 +8,7 @@
 #define LOCK_MAP(map) pthread_mutex_lock(&(map->mtx))
 #define UNLOCK_MAP(map) pthread_mutex_unlock(&(map->mtx))
 
-const float LOAD_FACTOR  = 0.7;
+const float LOAD_FACTOR = 0.7;
 
 typedef struct {
 	void *first;
@@ -51,17 +51,6 @@ void pair_copy_constructor2(void* dest, void* p) {
 	((pair*)dest)->second = ((pair*)p)->second;
 }
 
-pair *array_find(auto_array *h, void *key, compare_type comp) {
-	size_t len = array_size(h);
-	for (size_t i=0; i<len; i++) {
-		pair *p = array_at(h, i);
-		if (comp(key, p->first) == 0 ) {
-			return p;
-		}
-	}
-	return NULL;
-}
-
 // Cannot use list's find operations because there's no way to let list use
 // key comparator used in map. // TODO: Find a more elegant solution!
 list_node *list_find(list_t *list, void *key, compare_type comp) {
@@ -91,18 +80,18 @@ void resize_table(map* m);
 
 map *map_create(hash_function_type hash_function, compare_type comp,
 
-                              copy_constructor_type key_copy_constructor,
-                              destructor_type key_destructor,
+							  copy_constructor_type key_copy_constructor,
+							  destructor_type key_destructor,
 
-                              copy_constructor_type value_copy_constructor,
-                              destructor_type value_destructor)
+							  copy_constructor_type value_copy_constructor,
+							  destructor_type value_destructor)
 {
 	map *m = malloc(sizeof(map));
 	m->table = array_create(pair_copy_constructor2, nop_destructor, nop_default_constructor, sizeof(pair));
 	m->size = 0;
 	m->capacity = find_prime(0);
 //	array_reserve(m->table, m->capacity);
-    array_resize(m->table, m->capacity);
+	array_resize(m->table, m->capacity); // Destructors on `map_set` may cause UB if not all elements are initialized
 	m->hash_function = hash_function;
 	m->comp = comp;
 	m->key_copy_constructor = key_copy_constructor;
@@ -139,10 +128,6 @@ void map_destroy(map *m) {
 
 				list_destroy(list);
 			} else {
-
-				// TODO: What to do if destructors really do something?
-				// Current thinking: if occupied, then pair has meaningful stuff, so call des on pair elems
-				// Don't call destructors otherwise
 				pair *p = array_at(m->table, i);
 				m->key_destructor(p->first);
 				m->value_destructor(p->second);
@@ -171,7 +156,7 @@ int map_contains(map *m, void *key) {
 
 //			list_node *node = list_find_node(list, key);
 			list_node *node = list_find(list, key, m->comp);
-//			pair *node = array_find(list, key, m->comp);
+
 			if (node) {
 				exists = 1;
 			}
@@ -332,14 +317,15 @@ void resize_table(map *m) {
 	bitmap_t *occupied = m->is_occupied;
 	bitmap_t *chained = m->is_chained;
 	auto_array *table = m->table;
-	
-    copy_constructor_type kc = m->key_copy_constructor;
-    copy_constructor_type vc = m->value_copy_constructor;
-    destructor_type  kd = m->key_destructor;
-    destructor_type  vd = m->value_destructor;
 
-    m->key_copy_constructor = m->value_copy_constructor = pointer_copy_constructor;
-    m->key_destructor = m->value_destructor = nop_destructor;
+	// temporarily disable deep-copy copy constructors to prevent memory leak when moving elements to the resized table
+	copy_constructor_type kc = m->key_copy_constructor;
+	copy_constructor_type vc = m->value_copy_constructor;
+	destructor_type  kd = m->key_destructor;
+	destructor_type  vd = m->value_destructor;
+
+	m->key_copy_constructor = m->value_copy_constructor = pointer_copy_constructor;
+	m->key_destructor = m->value_destructor = nop_destructor;
 
 	// push all kv pairs to a temp array and destroy all lists
 	for (size_t i=0; i<capacity; ++i) {
@@ -380,6 +366,7 @@ void resize_table(map *m) {
 		internal_map_set(m, p->first, p->second);
 	}
 
+	// reset constructors and destructors to user-defined ones
 	m->key_copy_constructor = kc;
 	m->value_copy_constructor = vc;
 	m->key_destructor = kd;
@@ -392,20 +379,20 @@ void resize_table(map *m) {
 
 static size_t find_prime(size_t num) {
 	const size_t primes[]
-	    = {17ul,         29ul,         37ul,        53ul,        67ul,
-	       79ul,         97ul,         131ul,       193ul,       257ul,
-	       389ul,        521ul,        769ul,       1031ul,      1543ul,
-	       2053ul,       3079ul,       6151ul,      12289ul,     24593ul,
-	       49157ul,      98317ul,      196613ul,    393241ul,    786433ul,
-	       1572869ul,    3145739ul,    6291469ul,   12582917ul,  25165843ul,
-	       50331653ul,   100663319ul,  201326611ul, 402653189ul, 805306457ul,
-	       1610612741ul, 3221225473ul, 4294967291ul};
-    size_t len = sizeof(primes) / sizeof(size_t);
-    
-    for (unsigned i=0; i<len; ++i) {
-    	if (primes[i] >= num) {
-    		return primes[i];
-    	}
-    }
-    return 0;
+		= {17ul,         29ul,         37ul,        53ul,        67ul,
+		   79ul,         97ul,         131ul,       193ul,       257ul,
+		   389ul,        521ul,        769ul,       1031ul,      1543ul,
+		   2053ul,       3079ul,       6151ul,      12289ul,     24593ul,
+		   49157ul,      98317ul,      196613ul,    393241ul,    786433ul,
+		   1572869ul,    3145739ul,    6291469ul,   12582917ul,  25165843ul,
+		   50331653ul,   100663319ul,  201326611ul, 402653189ul, 805306457ul,
+		   1610612741ul, 3221225473ul, 4294967291ul};
+	size_t len = sizeof(primes) / sizeof(size_t);
+	
+	for (unsigned i=0; i<len; ++i) {
+		if (primes[i] >= num) {
+			return primes[i];
+		}
+	}
+	return 0;
 }

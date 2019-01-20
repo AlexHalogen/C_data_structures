@@ -154,7 +154,7 @@ list_node *list_find_node(list_t *list, void *data) {
 		if (list->compare(current->data, data) == 0) {
 			return current;
 		}
-		current = current->next;		
+		current = current->next;
 	}
 	return NULL;
 }
