@@ -2,9 +2,9 @@ CC = clang
 CFLAGS = -std=c99  -c -g -Wall -Wextra -fPIC
 
 LD = clang
-LDFLAGS = -std=c99 -g -Wall -pthread
+LDFLAGS = -std=c99 -g -Wall -pthread -lm
 
-all: map_test array_test queue.o
+all: map_test array_test bitmap_test queue.o
 
 
 utils/callbacks.o: utils/callbacks.c
@@ -35,6 +35,10 @@ array_test: array_test.c auto_array.o utils/callbacks.o
 map_test: map_test.c auto_array.o utils/callbacks.o utils/list.o map.o bitmap.o
 	$(CC) $(CFLAGS) $< -o $@.o
 	$(LD) $(LDFLAGS) -lm $^ -o $@
+
+bitmap_test: bitmap_test.c bitmap.o
+	$(LD) $(LDFLAGS) $^ -o $@
+
 
 clean:
 	rm -f *.o *.a
