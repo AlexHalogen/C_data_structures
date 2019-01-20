@@ -11,14 +11,16 @@ map *map_create(hash_function_type hash_function, compare_type comp,
 
                               copy_constructor_type value_copy_constructor,
                               destructor_type value_destructor);
-void map_destroy(map *this);
-int map_empty(map *this);
-size_t map_size(map *this);
-int map_contains(map *this, void *key);
-void *map_get(map *this, void *key);
-// key_value_pair map_at(map *this, void *key);
-void map_set(map *this, void *key, void *value);
-void map_remove(map *this, void *key);
-void map_clear(map *this);
-auto_array *map_keys(map *this);
-auto_array *map_values(map *this);
+void map_destroy(map *m);
+int map_empty(map *m);
+size_t map_size(map *m);
+int map_contains(map *m, void *key);
+void *map_get(map *m, void *key);
+
+void map_set(map *m, void *key, void *value);
+void map_remove(map *m, void *key);
+
+// not implemented yet
+void map_clear(map *m);
+auto_array *map_keys(map *m);
+auto_array *map_values(map *m);

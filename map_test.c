@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "map.h"
 
 
@@ -19,6 +20,7 @@ int strcmp_wrapper(const void *a, const void* b) {
 void wc_test() {
 	map *m = map_create(string_hash_function, strcmp_wrapper, string_copy_constructor, string_destructor, size4_copy_constructor, size4_destructor);
 
+	/* alice.txt downloaded from Project Gutenberg https://www.gutenberg.org/files/11/11-0.txt*/
 	FILE *file = fopen("alice.txt", "r");
 	char *word = malloc(25565);
 	size_t wc = 0;
@@ -28,7 +30,7 @@ void wc_test() {
 		wc++;
 		int newval = 1;
 		void *res;
-		if (strcmp(word, "are") == 0) {
+		if (strcmp(word, "Alice") == 0) {
 			// for determining to go into
 			int j=0; j++;
 		}
@@ -36,7 +38,7 @@ void wc_test() {
 		if (res) {
 			newval = (*(int*)res) + 1;
 		}
-		if (strcmp(word, "are") == 0) {
+		if (strcmp(word, "Alice") == 0) {
 			are_count++;
 		}
 
@@ -44,8 +46,22 @@ void wc_test() {
 		map_set(m, word, &newval);
 	}
 	printf("total word count %ld\n", wc);
-	int *result = map_get(m, "are");
-	printf("are: %d/%zu\n", *result, are_count);
+	int *result = map_get(m, "Alice");
+	printf("Alice: %d/%zu\n", *result, are_count);
+
+	assert(map_get(m, "am"));
+	assert(map_get(m, "is"));
+	assert(map_get(m, "are"));
+
+	map_remove(m, "am");
+	map_remove(m, "is");
+	map_remove(m, "are");
+	map_remove(m, "Alice");
+
+	assert(map_get(m, "am") == 0);
+	assert(map_get(m, "is") == 0);
+	assert(map_get(m, "Alice") == 0);
+
 
 	map_destroy(m);
 	free(word);
