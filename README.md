@@ -2,9 +2,9 @@
 
 This is a collection of my implementation of some useful data structures in C.
 
-Inspirations for writing this library comes from my other project: Minecraft Dungeon Finder, where data structures like queues, vectors and hashmaps are required to write that Multi-threaded dungeon finder in C.
+Motivations for writing this library comes from my other project: [Minecraft Dungeon Finder](https://github.com/AlexHalogen/MC_DungeonFinder), where data structures like queues, vectors and hashmaps are required to write that Multi-threaded dungeon finder in C.
 
-All these code are written for the purpose of **practicing**, and they should not be used in production.
+All these code are written for the purpose of **practicing**, so they should not be used in production.
 
 Currently I have implemented:
 
@@ -17,3 +17,13 @@ Currently I have implemented:
 Docs for hashmap, bitmap, and list are not completed because I'm still think about design details.
 
 The library is licensed under Unlicense. Check `LICENSE` for details
+
+
+## TODOs
+
+- [ ] More comprehensive tests for auto_array and hashmap
+- [ ] Restructure hashmap so that its code could be reused for hashset
+- [ ] Implement hashset
+- [ ] Implement a red-black tree
+- [ ] Implement ordered_map and ordered_set
+- [ ] ~~Better naming for functions, 'class'es and variables~~
